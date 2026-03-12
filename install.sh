@@ -19,7 +19,8 @@ sudo curl -sSL -O https://packages.microsoft.com/config/ubuntu/22.04/packages-mi
 sudo dpkg -i packages-microsoft-prod.deb
 sudo rm -f packages-microsoft-prod.deb
 
-sudo apt-get update -y
+# skip this due to (E: Failed to fetch https://storage.googleapis.com/tensorflow-serving-apt/dists/stable/InRelease  403  Forbidden)
+#sudo apt-get update -y
 sudo apt-get install -y azfilesauth
 
 # Configure azfilesauth
