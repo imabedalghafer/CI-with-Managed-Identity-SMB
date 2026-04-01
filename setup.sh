@@ -4,6 +4,26 @@ set -e
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 source "${SCRIPT_DIR}/config.env"
 
+# ── Validate configuration ──────────────────────────────────────────────────
+if [ -z "${STORAGE_ACCOUNT}" ]; then
+    echo "ERROR: STORAGE_ACCOUNT is not set in config.env." >&2
+    exit 1
+fi
+
+if [ "${INSTANCE_TYPE}" = "AFH" ]; then
+    if [ -z "${SHARE_NAMES}" ]; then
+        echo "ERROR: SHARE_NAMES must be set in config.env for AFH mode." >&2
+        exit 1
+    fi
+    echo "Config OK — AFH mode with shares: ${SHARE_NAMES}"
+else
+    if [ -z "${SHARE_NAME}" ]; then
+        echo "ERROR: SHARE_NAME must be set in config.env for AML mode." >&2
+        exit 1
+    fi
+    echo "Config OK — AML mode with share: ${SHARE_NAME}"
+fi
+
 # ── If running from a mounted path, copy everything and re-launch locally ───
 if [ "${SCRIPT_DIR}" != "${INSTALL_DIR}" ]; then
     echo "=== Copying scripts to ${INSTALL_DIR} ==="
