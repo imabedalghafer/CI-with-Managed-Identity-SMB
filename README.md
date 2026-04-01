@@ -11,6 +11,8 @@ Supports both **Azure Machine Learning (AML)** compute instances and **AI Hub (A
 - Access to the workspace storage account
 - Permission to create and assign User-Assigned Managed Identities
 - Ability to create a new compute instance
+- A snapshot of the *-code file shares on storage account per the documentation [Use share snapshots with Azure Files
+](https://learn.microsoft.com/en-us/azure/storage/files/storage-snapshots-files?tabs=portal) - The script is not expected to change anything on the file share content but having backup prior to anychange is always recommended action
 
 
 # Setup Steps
