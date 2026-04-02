@@ -28,11 +28,12 @@ fi
 if [ "${SCRIPT_DIR}" != "${INSTALL_DIR}" ]; then
     echo "=== Copying scripts to ${INSTALL_DIR} ==="
     sudo mkdir -p "${INSTALL_DIR}"
-    sudo cp -f "${SCRIPT_DIR}/config.env"  "${INSTALL_DIR}/config.env"
-    sudo cp -f "${SCRIPT_DIR}/install.sh"  "${INSTALL_DIR}/install.sh"
-    sudo cp -f "${SCRIPT_DIR}/mount.sh"    "${INSTALL_DIR}/mount.sh"
-    sudo cp -f "${SCRIPT_DIR}/refresh.sh"  "${INSTALL_DIR}/refresh.sh"
-    sudo cp -f "${SCRIPT_DIR}/setup.sh"    "${INSTALL_DIR}/setup.sh"
+    sudo cp -f "${SCRIPT_DIR}/config.env"   "${INSTALL_DIR}/config.env"
+    sudo cp -f "${SCRIPT_DIR}/install.sh"   "${INSTALL_DIR}/install.sh"
+    sudo cp -f "${SCRIPT_DIR}/mount.sh"     "${INSTALL_DIR}/mount.sh"
+    sudo cp -f "${SCRIPT_DIR}/mount-afh.sh" "${INSTALL_DIR}/mount-afh.sh"
+    sudo cp -f "${SCRIPT_DIR}/refresh.sh"   "${INSTALL_DIR}/refresh.sh"
+    sudo cp -f "${SCRIPT_DIR}/setup.sh"     "${INSTALL_DIR}/setup.sh"
     sudo chmod +x "${INSTALL_DIR}"/*.sh
 
     echo "=== Re-launching setup from ${INSTALL_DIR} ==="
@@ -46,7 +47,15 @@ bash "${INSTALL_DIR}/install.sh"
 
 echo "=== Phase 2: Register systemd service ==="
 
-sudo tee /etc/systemd/system/azfiles-mount.service > /dev/null << 'UNIT_EOF'
+# Select the mount script based on instance type
+if [ "${INSTANCE_TYPE}" = "AFH" ]; then
+    MOUNT_SCRIPT="${INSTALL_DIR}/mount-afh.sh"
+else
+    MOUNT_SCRIPT="${INSTALL_DIR}/mount.sh"
+fi
+echo "Using mount script: ${MOUNT_SCRIPT}"
+
+sudo tee /etc/systemd/system/azfiles-mount.service > /dev/null << UNIT_EOF
 [Unit]
 Description=Azure Files Kerberos mount and token refresh
 After=network-online.target
@@ -58,7 +67,7 @@ User=azureuser
 Group=azureuser
 EnvironmentFile=/etc/default/azfiles
 ExecStartPre=/bin/sleep 15
-ExecStart=/opt/azfiles/mount.sh
+ExecStart=${MOUNT_SCRIPT}
 TimeoutStartSec=300
 Restart=on-failure
 RestartSec=60
